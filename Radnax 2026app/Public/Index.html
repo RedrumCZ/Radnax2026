@@ -1,0 +1,60 @@
+<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
+
+<style>
+  :root {
+    --sw-yellow: #ffe81f;
+    --sw-blue: #4fc3f7;
+    --sw-red: #ef5350;
+    --dark-bg: #050505;
+    --glass: rgba(20, 20, 35, 0.8);
+  }
+  body { background: var(--dark-bg); color: #ccc; }
+  .card { 
+    background: var(--glass); 
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 232, 31, 0.2);
+    box-shadow: 0 0 15px rgba(255, 232, 31, 0.05);
+  }
+  .btn-primary { 
+    background: var(--sw-yellow); 
+    box-shadow: 0 0 10px var(--sw-yellow);
+    transition: 0.3s;
+  }
+  .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--sw-yellow); }
+</style>
+
+<script>
+// KONFIGURACE (Získáte v Firebase Console)
+const firebaseConfig = {
+  apiKey: "AIza...",
+  authDomain: "chata2025.firebaseapp.com",
+  projectId: "chata2025",
+  storageBucket: "chata2025.appspot.com",
+  messagingSenderId: "...",
+  appId: "..."
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// REAL-TIME SYNC LOGIKA
+function listenToChat(room) {
+  db.collection("messages").where("room", "==", room).orderBy("time")
+    .onSnapshot((snapshot) => {
+      let msgs = [];
+      snapshot.forEach(doc => msgs.push(doc.data()));
+      renderMessages(msgs); // Vaše funkce pro zobrazení
+    });
+}
+
+function sendMsg(text) {
+  db.collection("messages").add({
+    uid: auth.currentUser.uid,
+    text: text,
+    time: firebase.firestore.FieldValue.serverTimestamp(),
+    room: S.chatRoom
+  });
+}
+</script>
